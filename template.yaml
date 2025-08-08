@@ -1,1 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Deploy testapp to AWS Lambda inside a VPC
+
+Resources:
+  TestAppFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: testapp
+      Runtime: dotnet8
+      Handler: TodoApi::TodoApi.Program::Main
+      CodeUri: ./src
+      MemorySize: 512
+      Timeout: 30
+      VpcConfig:
+        SubnetIds:
+          - subnet-xxxxxxxx
+        SecurityGroupIds:
+          - sg-xxxxxxxx
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /todoitems
+            Method: GET
 
