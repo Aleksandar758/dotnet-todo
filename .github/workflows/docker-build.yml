@@ -21,3 +21,13 @@ jobs:
       run: |
         docker build -t dotnet-todo:latest ./src
 
+    - name: Get current date
+      id: date
+      run: echo "date=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+
+    - name: Create version tag
+      run: |
+        git config --global user.email "aleksandar.milevski4@outlook.com"
+        git config --global user.name "GitHub Actions"
+        git tag v${{ steps.date.outputs.date }}
+        git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} v${{ steps.date.outputs.date }}
