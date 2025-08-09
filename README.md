@@ -108,3 +108,4 @@ curl -X POST http://localhost:8080/todoitems \
 - The application uses an in-memory database by default
 - For production deployment, consider using a persistent database
 - The AWS Lambda deployment includes VPC configuration for enhanced security
+
