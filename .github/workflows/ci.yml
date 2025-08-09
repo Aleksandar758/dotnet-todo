@@ -82,10 +82,13 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Docker image for Minikube
+        run: docker build -t dotnet-todo:latest -f src/Dockerfile .
       - name: Deploy to minikube
         run: |
           eval $(minikube docker-env)
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}
+          docker tag dotnet-todo:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} || true
           helm upgrade --install todo-api ./helm/todo-api \
             --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
             --set image.tag=${{ needs.build.outputs.version }}
