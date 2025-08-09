@@ -76,6 +76,16 @@ jobs:
 
       - name: Start minikube
         uses: medyagh/setup-minikube@master
+        with:
+          driver: docker
+          kubernetes-version: v1.26.3
+
+      - name: Configure minikube
+        run: |
+          minikube status
+          minikube addons enable registry
+          minikube addons enable ingress
+          kubectl get pods -A
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -87,24 +97,49 @@ jobs:
       - name: Deploy to minikube
         run: |
           eval $(minikube docker-env)
+          
+          # Pull the image
+          echo "Pulling image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}"
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}
+          
+          # Install/upgrade Helm chart
+          echo "Deploying with Helm..."
           helm upgrade --install todo-api ./helm/todo-api \
+            --wait \
+            --timeout 2m \
             --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
             --set image.tag=${{ needs.build.outputs.version }}
+          
+          # Check deployment status
+          echo "Checking deployment status..."
+          kubectl get pods
+          kubectl get services
 
       - name: Wait for deployment
         run: |
-          kubectl wait --for=condition=available deployment/todo-api --timeout=60s
+          echo "Waiting for deployment to be available..."
+          kubectl wait --for=condition=available deployment/todo-api --timeout=90s
+          
+          echo "Checking pod status..."
+          kubectl get pods
+          kubectl describe pods -l app.kubernetes.io/name=todo-api
 
       - name: Test API Endpoints
         run: |
+          echo "Setting up port forward..."
           kubectl port-forward svc/todo-api 8080:80 &
-          sleep 10
-          curl -f http://localhost:8080/healthz
+          sleep 15  # Give more time for the port-forward to establish
+          
+          echo "Testing health endpoint..."
+          curl -v http://localhost:8080/healthz
+          
+          echo "Testing todoitems endpoint..."
           response=$(curl -f -s http://localhost:8080/todoitems)
           if [ "$response" != "[]" ] && [ "$response" != "" ]; then
             echo "Todo items endpoint test passed"
+            echo "Response: $response"
           else
             echo "Todo items endpoint test failed"
+            echo "Response: $response"
             exit 1
           fi
