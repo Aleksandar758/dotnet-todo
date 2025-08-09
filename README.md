@@ -1,38 +1,110 @@
 # dotnet-todo
 
-## Test the GET endpoints
+A .NET Core Web API for managing todo items with complete CI/CD pipeline, containerization, and cloud deployment capabilities.
 
-Test the app by calling the endpoints from a browser or Postman. The following steps are for Postman.
+## Prerequisites
 
-  Create a new HTTP request.
-  Set the HTTP method to GET.
-  Set the request URI to https://localhost:<port>/todoitems. For example, https://localhost:5001/todoitems.
-  Select Send.
+- .NET 8.0 SDK
+- Docker
+- Kubernetes (Minikube/MicroK8s)
+- Helm
+- AWS CLI
+- Terraform
 
-The call to GET /todoitems produces a response similar to the following:
+## Local Development
 
-```json
-[
-  {
-    "id": 1,
-    "name": "walk dog",
-    "isComplete": false
-  }
-]
+### Building and Running Locally
+
+```bash
+dotnet restore
+dotnet build
+dotnet run --project src/TodoApi.csproj
 ```
 
-  Set the request URI to https://localhost:<port>/todoitems/1. For example, https://localhost:5001/todoitems/1.
+### Docker Build
 
-  Select Send.
-
-  The response is similar to the following:
-
-```json
-  {
-    "id": 1,
-    "name": "walk dog",
-    "isComplete": false
-  }
+```bash
+docker build -t dotnet-todo:latest -f src/Dockerfile .
+docker run -p 8080:80 dotnet-todo:latest
 ```
 
-This app uses an in-memory database. If the app is restarted, the GET request doesn't return any data. If no data is returned, POST data to the app and try the GET request again.
+### Helm Deployment
+
+```bash
+# Start Minikube (if not already running)
+minikube start
+
+# Deploy using Helm
+helm upgrade --install todo-api ./helm/todo-api \
+  --set image.repository=dotnet-todo \
+  --set image.tag=latest
+
+# Get the service URL
+minikube service todo-api --url
+```
+
+### AWS Lambda Deployment
+
+1. Build and publish the application:
+```bash
+cd scripts
+./package-lambda.sh
+```
+
+2. Deploy using Terraform:
+```bash
+cd infrastructure
+terraform init
+terraform apply
+```
+
+## CI/CD Pipeline
+
+The GitHub Actions workflow implements:
+- Automated builds
+- Code analysis using GitHub Super-Linter
+- Semantic versioning using GitVersion
+- Docker image building and publishing
+- Kubernetes deployment testing
+- Integration tests
+
+## Testing the API
+
+### Available Endpoints
+
+- GET /healthz - Health check endpoint
+- GET /todoitems - List all todos
+- GET /todoitems/{id} - Get a specific todo
+- POST /todoitems - Create a new todo
+- PUT /todoitems/{id} - Update a todo
+- DELETE /todoitems/{id} - Delete a todo
+
+### Example Request
+
+```bash
+# Get all todos
+curl http://localhost:8080/todoitems
+
+# Create a new todo
+curl -X POST http://localhost:8080/todoitems \
+  -H "Content-Type: application/json" \
+  -d '{"name":"walk dog","isComplete":false}'
+```
+
+## Directory Structure
+
+```
+.
+??? src/                    # Source code
+??? helm/                   # Helm charts
+?   ??? todo-api/
+??? infrastructure/         # Terraform AWS infrastructure
+??? .github/
+    ??? workflows/         # GitHub Actions workflows
+```
+
+## Notes
+
+- The application uses an in-memory database by default
+- For production deployment, consider using a persistent database
+- The AWS Lambda deployment includes VPC configuration for enhanced security
