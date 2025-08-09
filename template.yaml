@@ -1,7 +1,7 @@
+---
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Deploy testapp to AWS Lambda inside a VPC
-
 Resources:
   TestAppFunction:
     Type: AWS::Serverless::Function
@@ -23,4 +23,3 @@ Resources:
           Properties:
             Path: /todoitems
             Method: GET
-
