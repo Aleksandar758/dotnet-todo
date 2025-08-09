@@ -33,10 +33,29 @@ jobs:
     
     - name: Deploy with Helm
       run: |
-        helm upgrade --install todo-api ./helm/todo-api
-        kubectl rollout status deployment/todo-api
+        helm upgrade --install todo-api ./helm/todo-api --set image.repository=dotnet-todo --set image.tag=latest
+        kubectl rollout status deployment/todo-api-todo-api --timeout=120s
     
-    - name: Test deployment
+    - name: Wait for service to be ready
+      run: |
+        kubectl wait --for=condition=available deployment/todo-api-todo-api --timeout=120s
+        sleep 10  # Give a little extra time for the service to be fully ready
+    
+    - name: Test application endpoints
+      run: |
+        # Port forward to access the service
+        kubectl port-forward svc/todo-api-todo-api 8080:80 &
+        sleep 5
+        
+        # Test the endpoints - adjust based on your actual API endpoints
+        echo "Testing API endpoints..."
+        curl -s http://localhost:8080/todoitems || echo "API test failed"
+        
+        # Run the test connection from your Helm tests
+        echo "Running Helm tests..."
+        helm test todo-api
+    
+    - name: Show test and deployment status
       run: |
         kubectl get pods -o wide
         kubectl get services
