@@ -1,0 +1,8 @@
+image:
+  repository: aleksandar758/testapp
+  tag: "v1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80

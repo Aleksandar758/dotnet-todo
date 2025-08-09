@@ -95,12 +95,12 @@ curl -X POST http://localhost:8080/todoitems \
 
 ```
 .
-??? src/                    # Source code
-??? helm/                   # Helm charts
-?   ??? todo-api/
-??? infrastructure/         # Terraform AWS infrastructure
-??? .github/
-    ??? workflows/         # GitHub Actions workflows
+├── src/                    # Source code
+├── helm/                   # Helm charts
+│   └── todo-api/
+├── infrastructure/         # Terraform AWS infrastructure
+└── .github/
+    └── workflows/         # GitHub Actions workflows
 ```
 
 ## Notes
