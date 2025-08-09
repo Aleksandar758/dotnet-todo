@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/aleks/dotnet-todo/dotnet-todo/src/TodoApi.csproj": {}
+    "/home/runner/work/dotnet-todo/dotnet-todo/src/TodoApi.csproj": {}
   },
   "projects": {
-    "/home/aleks/dotnet-todo/dotnet-todo/src/TodoApi.csproj": {
+    "/home/runner/work/dotnet-todo/dotnet-todo/src/TodoApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/aleks/dotnet-todo/dotnet-todo/src/TodoApi.csproj",
+        "projectUniqueName": "/home/runner/work/dotnet-todo/dotnet-todo/src/TodoApi.csproj",
         "projectName": "TodoApi",
-        "projectPath": "/home/aleks/dotnet-todo/dotnet-todo/src/TodoApi.csproj",
-        "packagesPath": "/home/aleks/.nuget/packages/",
-        "outputPath": "/home/aleks/dotnet-todo/dotnet-todo/src/obj/",
+        "projectPath": "/home/runner/work/dotnet-todo/dotnet-todo/src/TodoApi.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/dotnet-todo/dotnet-todo/src/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/aleks/.nuget/NuGet/NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
