@@ -37,7 +37,8 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore src/TodoApi.csproj
       - name: Build
-        run: dotnet build src/TodoApi.csproj --configuration Release --no-restore
+        run: |
+          dotnet build src/TodoApi.csproj --configuration Release --no-restore
       - name: Run Code Analysis
         uses: github/super-linter@v5
         env:
@@ -59,10 +60,11 @@ jobs:
           file: src/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.gitversion.outputs.semVer }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{
+              steps.gitversion.outputs.semVer }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-   deploy-test:
+  deploy-test:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -85,13 +87,15 @@ jobs:
       - name: Deploy to minikube
         run: |
           eval $(minikube docker-env)
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{
+            needs.build.outputs.version }}
           helm upgrade --install todo-api ./helm/todo-api \
             --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
             --set image.tag=${{ needs.build.outputs.version }}
       - name: Wait for deployment
         run: |
-          kubectl wait --for=condition=available deployment/todo-api --timeout=60s
+          kubectl wait --for=condition=available deployment/todo-api \
+            --timeout=60s
       - name: Test API Endpoints
         run: |
           kubectl port-forward svc/todo-api 8080:80 &

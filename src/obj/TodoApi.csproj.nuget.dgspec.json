@@ -40,11 +40,11 @@
           "dependencies": {
             "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.0-preview.7.23375.9, )"
+              "version": "[8.0.0, )"
             },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
-              "version": "[8.0.0-preview.7.23375.4, )"
+              "version": "[8.0.0, )"
             }
           },
           "imports": [

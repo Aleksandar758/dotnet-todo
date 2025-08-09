@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy .csproj and restore dependencies
-COPY ["TodoApi.csproj", "./"]
+COPY ["src/TodoApi.csproj", "./"]
 RUN dotnet restore "TodoApi.csproj"
 
 # Copy the rest of the source code and build the app
-COPY . .
+COPY src/ .
 RUN dotnet build "TodoApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
