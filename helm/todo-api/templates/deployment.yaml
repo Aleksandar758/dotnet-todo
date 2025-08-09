@@ -29,7 +29,6 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /healthz
@@ -37,6 +36,5 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 3
-            failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
