@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: dotnet-todo
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 5000
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: 5000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 5000
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 50
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Cost optimization guidance:
+# - Keep small resource requests for bursty, cheap workloads
+# - Use autoscaling to scale down during low traffic
+# - Use nodeSelector / taints to schedule on low-cost nodes in cloud providers

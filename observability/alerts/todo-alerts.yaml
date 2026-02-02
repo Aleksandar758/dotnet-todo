@@ -1,0 +1,15 @@
+groups:
+  - name: dotnet-todo.rules
+    rules:
+      - alert: High5xxErrorRate
+        expr: |
+          sum(rate(http_requests_total{job="todo",code=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total{job="todo"}[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate for dotnet-todo"
+          description: "5xx error rate is >5% for more than 5 minutes."

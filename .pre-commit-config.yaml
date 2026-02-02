@@ -1,0 +1,13 @@
+repos:
+  - repo: local
+    hooks:
+      - id: dotnet-format
+        name: dotnet-format
+        entry: dotnet format
+        language: system
+        files: '\.cs$'
+      - id: dotnet-build
+        name: dotnet-build
+        entry: dotnet build --no-restore
+        language: system
+        files: '\.csproj$|\.sln$'

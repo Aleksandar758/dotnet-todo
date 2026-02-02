@@ -84,3 +84,6 @@ static async Task<IResult> DeleteTodo(int id, TodoDb db)
 }
 // <snippet_handlers>
 // </snippet_all>
+
+// Public program class for test host
+public partial class Program { }

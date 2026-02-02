@@ -1,0 +1,54 @@
+name: Deploy to KinD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  kind-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Set up KinD
+      uses: engineerd/setup-kind@v0.6.0
+      with:
+        version: v0.20.0
+
+    - name: Create kind cluster
+      run: kind create cluster --name todo-cluster --wait 5m
+
+    - name: Build image
+      run: |
+        docker build -t dotnet-todo:latest src
+
+    - name: Load image into kind
+      run: kind load docker-image dotnet-todo:latest --name todo-cluster
+
+    - name: Install Helm
+      uses: azure/setup-helm@v4
+
+    - name: Deploy chart
+      run: |
+        helm upgrade --install my-todo charts/todo --set image.tag=latest --wait --timeout 2m
+
+    - name: Wait for pod
+      run: kubectl wait --for=condition=available --timeout=120s deployment/my-todo-todo || kubectl get pods -o wide
+
+    - name: Get pod name
+      id: pod
+      run: echo "::set-output name=name::$(kubectl get pods -l app=todo -o jsonpath='{.items[0].metadata.name}')"
+
+    - name: Port-forward and test endpoints
+      run: |
+        kubectl port-forward $(kubectl get pods -l app=todo -o jsonpath='{.items[0].metadata.name}') 5000:5000 &
+        sleep 3
+        curl -sfS http://localhost:5000/todoitems || (kubectl logs -l app=todo && exit 1)

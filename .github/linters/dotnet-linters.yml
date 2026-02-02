@@ -1,0 +1,3 @@
+linters:
+  dotnet-format: true
+  dotnet-analysers: true

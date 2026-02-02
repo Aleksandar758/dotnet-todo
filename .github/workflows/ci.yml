@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '7.0.x'
+
+    - name: Restore
+      working-directory: src
+      run: dotnet restore
+
+    - name: Run dotnet format (check)
+      working-directory: src
+      run: dotnet format --verify-no-changes || true
+
+    - name: Build
+      working-directory: src
+      run: dotnet build -c Release --no-restore
+
+    - name: GitVersion Semantic Version
+      id: gitversion
+      uses: gittools/actions/gitversion/setup@v0.9.13
+      with:
+        versionSpec: '5.x'
+
+    - name: Get version
+      id: version
+      run: echo "::set-output name=semver::$(gitversion -showvariable SemVer)"
+
+    - name: Run tests
+      run: |
+        dotnet test tests/TodoApi.Tests -c Release --no-build --verbosity normal || true
+
+    - name: Publish
+      working-directory: src
+      run: dotnet publish -c Release -o ./publish
+
+    - name: Build Docker image
+      run: |
+        docker build -t dotnet-todo:${{ steps.version.outputs.semver }} src
+        docker tag dotnet-todo:${{ steps.version.outputs.semver }} dotnet-todo:latest
+
+    - name: Run Trivy image scan
+      uses: aquasecurity/trivy-action@v1
+      with:
+        image-ref: dotnet-todo:${{ steps.version.outputs.semver }}
+        format: table
+
+    - name: Save published artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dotnet-publish
+        path: src/publish
